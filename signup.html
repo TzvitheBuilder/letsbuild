@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sign Up | LetsBuild</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+
+    <!-- HEADER -->
+    <header>
+      <div class="header-inner">
+        <h1 class="logo">Let's Build</h1>
+        <nav>
+          <a href="index.html">Home</a>
+          <a href="projects-hub.html">Projects Hub</a>
+          <a href="login.html">Log In</a>
+          <a href="signup.html">Sign Up</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- SIGN UP SECTION -->
+    <section class="auth-page">
+
+      <div class="auth-card">
+
+        <h2>Create your account</h2>
+        <p class="auth-subtitle">Join LetsBuild as a student or mentor</p>
+
+        <!-- ROLE SELECTOR -->
+        <div class="role-selector">
+          <button class="role-btn active" onclick="selectRole('student', this)">
+            🎒 I'm a Student
+          </button>
+          <button class="role-btn" onclick="selectRole('mentor', this)">
+            🧑‍💼 I'm a Mentor
+          </button>
+        </div>
+
+        <!-- FORM -->
+        <div class="auth-form">
+          <input type="text" placeholder="Full Name" />
+          <input type="email" placeholder="Email Address" />
+          <input type="password" placeholder="Password" />
+          <input type="password" placeholder="Confirm Password" />
+          <button class="btn-primary">Create Account</button>
+        </div>
+
+        <p class="auth-switch">Already have an account? <a href="login.html">Log In</a></p>
+
+      </div>
+
+    </section>
+
+  </body>
+
+  <script type="module">
+  import { supabase } from './supabase.js'
+
+  // Role selector
+  let selectedRole = 'student'
+
+  window.selectRole = function(role, el) {
+    selectedRole = role
+    document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'))
+    el.classList.add('active')
+  }
+
+  // Sign up button
+  document.querySelector('.btn-primary').addEventListener('click', async () => {
+
+    const name     = document.querySelectorAll('input')[0].value
+    const email    = document.querySelectorAll('input')[1].value
+    const password = document.querySelectorAll('input')[2].value
+    const confirm  = document.querySelectorAll('input')[3].value
+
+    // Basic checks
+    if (!name || !email || !password) {
+      alert('Please fill in all fields')
+      return
+    }
+
+    if (password !== confirm) {
+      alert('Passwords do not match')
+      return
+    }
+
+    // Create account in Supabase
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name, role: selectedRole }
+      }
+    })
+
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      alert('Account created! Please check your email to confirm.')
+      window.location.href = 'login.html'
+    }
+
+  })
+</script>
+
+</html>
