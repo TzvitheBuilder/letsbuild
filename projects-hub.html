@@ -8,7 +8,6 @@
   </head>
   <body>
 
-    <!-- HEADER -->
     <header>
       <div class="header-inner">
         <h1 class="logo">Let's Build</h1>
@@ -21,67 +20,64 @@
       </div>
     </header>
 
-    <!-- PAGE TITLE -->
     <section class="hub-header">
       <h2>Projects Hub</h2>
       <p>Browse projects from students in your community</p>
     </section>
 
-    <!-- PROJECT GRID -->
-    <section class="hub-grid">
+    <section class="hub-grid" id="project-grid">
+      <p class="loading-text" id="loading-text">Loading projects...</p>
+    </section>
 
-      <!-- CARD 1 -->
-      <div class="project-card">
-        <div class="card-image">
-          <img src="https://images.unsplash.com/photo-1581092334651-ddf26d9a09d0?w=600" alt="Project Cover" />
-        </div>
-        <div class="card-body">
-          <h3>Solar Powered Phone Charger</h3>
-          <p>A portable solar panel system designed to charge devices using renewable energy, built using recycled materials.</p>
-          <div class="card-footer">
-            <span class="card-tag">Engineering</span>
-            <a href="#" class="card-link">View Project →</a>
+  <script type="module">
+    import { supabase } from './supabase.js'
+
+    const grid        = document.getElementById('project-grid')
+    const loadingText = document.getElementById('loading-text')
+
+    async function loadProjects() {
+
+      const { data: projects, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        loadingText.textContent = 'Failed to load projects. Please try again.'
+        return
+      }
+
+      if (projects.length === 0) {
+        loadingText.textContent = 'No projects posted yet — check back soon!'
+        return
+      }
+
+      loadingText.remove()
+
+      projects.forEach(project => {
+        const card = document.createElement('div')
+        card.className = 'project-card'
+        card.innerHTML = `
+          <div class="card-image">
+            <img src="${project.cover_url}" alt="${project.title}" />
           </div>
-        </div>
-      </div>
-
-      <!-- CARD 2 -->
-      <div class="project-card">
-        <div class="card-image">
-          <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=600" alt="Project Cover" />
-        </div>
-        <div class="card-body">
-          <h3>AI Study Assistant App</h3>
-          <p>A mobile app that uses AI to help students create study plans, summarize notes and quiz themselves on any subject.</p>
-          <div class="card-footer">
-            <span class="card-tag">Technology</span>
-            <a href="#" class="card-link">View Project →</a>
+          <div class="card-body">
+            <h3>${project.title}</h3>
+            <p>${project.overview}</p>
+            <div class="card-footer">
+              <span class="card-tag">Student Project</span>
+              <a href="#" class="card-link">View Project →</a>
+            </div>
           </div>
-        </div>
-      </div>
+        `
+        grid.appendChild(card)
+      })
 
-      <!-- CARD 3 -->
-      <div class="project-card">
-        <div class="card-image">
-          <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600" alt="Project Cover" />
-        </div>
-        <div class="card-body">
-          <h3>Community Garden Planner</h3>
-          <p>A web tool that helps local communities plan and manage shared garden spaces, track planting schedules and crop yields.</p>
-          <div class="card-footer">
-            <span class="card-tag">Environment</span>
-            <a href="#" class="card-link">View Project →</a>
-          </div>
-        </div>
-      </div>
+    }
 
-      <!-- CARD 4 -->
-      <div class="project-card">
-        <div class="card-image">
-          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600" alt="Project Cover" />
-        </div>
-        <div class="card-body">
-          <h3>Mental Health Chatbot</h3>
-          <p>A compassionate chatbot designed to provide students with mental health resources, coping strategies and a safe space to talk.</p>
-          <div class="card-footer">
-            <span class="card-tag">Health</sp
+    loadProjects()
+
+  </script>
+
+  </body>
+</html>
