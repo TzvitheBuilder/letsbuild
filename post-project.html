@@ -57,19 +57,86 @@
 
   </body>
 
-  <script>
-    // Show image preview when a photo is selected
-    document.getElementById('photo-upload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+ <script type="module">
+  import { supabase } from './supabase.js'
 
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        const inner = document.getElementById('upload-inner');
-        inner.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;" />`;
-      };
-      reader.readAsDataURL(file);
-    });
-  </script>
+  // ── IMAGE PREVIEW ──
+  document.getElementById('photo-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = function(ev) {
+      const inner = document.getElementById('upload-inner')
+      inner.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;" />`
+    }
+    reader.readAsDataURL(file)
+  })
+
+  // ── SUBMIT PROJECT ──
+  document.querySelector('.btn-primary').addEventListener('click', async () => {
+
+    // Grab form values
+    const title    = document.querySelectorAll('input')[0].value
+    const overview = document.querySelector('textarea').value
+    const file     = document.getElementById('photo-upload').files[0]
+
+    // Basic checks
+    if (!title || !overview || !file) {
+      alert('Please fill in all fields and upload a cover photo')
+      return
+    }
+
+    // Check user is logged in
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      alert('You must be logged in to post a project')
+      window.location.href = 'login.html'
+      return
+    }
+
+    // 1. Upload photo to Supabase Storage
+    const fileExt   = file.name.split('.').pop()
+    const fileName  = `${user.id}-${Date.now()}.${fileExt}`
+
+    const { error: uploadError } = await supabase
+      .storage
+      .from('project-covers')
+      .upload(fileName, file)
+
+    if (uploadError) {
+      alert('Photo upload failed: ' + uploadError.message)
+      return
+    }
+
+    // 2. Get the public URL of the uploaded photo
+    const { data: urlData } = supabase
+      .storage
+      .from('project-covers')
+      .getPublicUrl(fileName)
+
+    const coverUrl = urlData.publicUrl
+
+    // 3. Save project to database
+    const { error: insertError } = await supabase
+      .from('projects')
+      .insert({
+        title,
+        overview,
+        cover_url: coverUrl,
+        student_id: user.id
+      })
+
+    if (insertError) {
+      alert('Error saving project: ' + insertError.message)
+      return
+    }
+
+    // Success!
+    alert('Project posted successfully!')
+    window.location.href = 'projects-hub.html'
+
+  })
+</script>
 
 </html>
