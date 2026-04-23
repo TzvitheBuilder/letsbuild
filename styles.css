@@ -7,14 +7,15 @@
 
 /* ── GLOBAL ── */
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f9f9f9;
-  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f8f5;
+  color: #1a2744;
 }
 
 /* ── HEADER ── */
 header {
-  background-color: #1a1a1a;
+  background-color: #ffffff;
+  border-bottom: 2px solid #1a2744;
   padding: 20px 40px;
 }
 
@@ -25,83 +26,131 @@ header {
 }
 
 .logo {
-  color: #ffffff;
-  font-size: 24px;
-  font-weight: 700;
+  color: #1a2744;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 nav a {
-  color: #ffffff;
+  color: #1a2744;
   text-decoration: none;
-  margin-left: 24px;
-  font-size: 15px;
+  margin-left: 28px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 nav a:hover {
-  color: #f0a500;
+  color: #4a6cf7;
 }
 
 /* ── HERO ── */
 .hero {
+  position: relative;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 0 40px;
-  color: #ffffff;
-  min-height: 100vh;
-
-  background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  position: relative;
+  background-color: #ffffff;
+  overflow: hidden;
 }
 
-/* Dark overlay */
-.hero::before {
-  content: '';
+/* Blueprint grid overlay */
+.hero-grid-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.55);
+  background-image:
+    linear-gradient(rgba(26, 39, 68, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 39, 68, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
-/* Keeps text above overlay */
-.hero h2,
-.hero p,
-.hero a {
+/* Corner markers */
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-color: #1a2744;
+  border-style: solid;
+  opacity: 0.4;
+}
+
+.hero::before {
+  top: 40px;
+  left: 40px;
+  border-width: 2px 0 0 2px;
+}
+
+.hero::after {
+  bottom: 40px;
+  right: 40px;
+  border-width: 0 2px 2px 0;
+}
+
+.hero-content {
   position: relative;
   z-index: 1;
-}
-
-.hero h2 {
-  font-size: 56px;
-  font-weight: 700;
+  text-align: center;
+  padding: 40px;
   max-width: 800px;
-  line-height: 1.3;
-  margin-bottom: 24px;
 }
 
-.hero p {
-  font-size: 22px;
-  color: #dddddd;
-  margin-bottom: 40px;
+.blueprint-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: #4a6cf7;
+  margin-bottom: 28px;
 }
+
+.hero-content h2 {
+  font-size: 58px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a2744;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  font-size: 20px;
+  color: #6b7a99;
+  margin-bottom: 32px;
+}
+
+.blueprint-divider {
+  width: 60px;
+  height: 2px;
+  background-color: #4a6cf7;
+  margin: 0 auto 32px;
+}
+
 /* ── BUTTON ── */
 .btn {
-  background-color: #f0a500;
-  color: #1a1a1a;
-  padding: 14px 32px;
-  border-radius: 6px;
+  display: inline-block;
+  background-color: #1a2744;
+  color: #ffffff;
+  padding: 14px 36px;
+  border-radius: 2px;
   text-decoration: none;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 2px solid #1a2744;
+  transition: all 0.2s;
 }
 
 .btn:hover {
-  background-color: #d4940a;
+  background-color: transparent;
+  color: #1a2744;
 }
+
 /* ── AUTH PAGES (Sign Up & Login) ── */
 .auth-page {
   min-height: 100vh;
@@ -218,6 +267,7 @@ nav a:hover {
 .auth-switch a:hover {
   text-decoration: underline;
 }
+
 /* ── POST PROJECT PAGE ── */
 .post-card {
   max-width: 560px;
@@ -228,7 +278,7 @@ nav a:hover {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 15px;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Inter', sans-serif;
   outline: none;
   resize: vertical;
   transition: border 0.2s;
@@ -283,13 +333,13 @@ nav a:hover {
 .hub-header {
   text-align: center;
   padding: 60px 40px 20px;
-  background-color: #f9f9f9;
+  background-color: #f8f8f5;
 }
 
 .hub-header h2 {
   font-size: 36px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #1a2744;
   margin-bottom: 10px;
 }
 
@@ -341,7 +391,7 @@ nav a:hover {
 .card-body h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #1a2744;
   margin-bottom: 10px;
 }
 
@@ -377,4 +427,12 @@ nav a:hover {
 
 .card-link:hover {
   text-decoration: underline;
+}
+
+.loading-text {
+  color: #666666;
+  font-size: 16px;
+  text-align: center;
+  grid-column: 1 / -1;
+  padding: 40px;
 }
