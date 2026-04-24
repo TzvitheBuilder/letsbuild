@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Projects Hub | LetsBuild</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -20,14 +21,27 @@
       </div>
     </header>
 
-    <section class="hub-header">
-      <h2>Projects Hub</h2>
-      <p>Browse projects from students in your community</p>
-    </section>
+    <main class="hub-page">
+      <section class="hub-header">
+        <div class="hub-grid-overlay"></div>
+        <div class="hub-header-inner">
+          <div class="blueprint-label">— PROJECT INDEX —</div>
+          <h2>Projects Hub</h2>
+          <p>Browse active builds, discover fresh ideas, and find the projects that need support to keep moving.</p>
+        </div>
+      </section>
 
-    <section class="hub-grid" id="project-grid">
-      <p class="loading-text" id="loading-text">Loading projects...</p>
-    </section>
+      <section class="hub-intro">
+        <div class="hub-intro-panel">
+          <span class="hub-intro-tag">Open Network</span>
+          <p>Each project here starts as a sketch, a problem, or a prototype. LetsBuild helps students share what they are making so mentors and collaborators can step in at the right moment.</p>
+        </div>
+      </section>
+
+      <section class="hub-grid" id="project-grid">
+        <p class="loading-text" id="loading-text">Loading projects...</p>
+      </section>
+    </main>
 
   <script type="module">
     import { supabase } from './supabase.js'
