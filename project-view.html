@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Project View | LetsBuild</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+
+    <header>
+      <div class="header-inner">
+        <h1 class="logo">Let's Build</h1>
+        <nav>
+          <a href="index.html">Home</a>
+          <a href="projects-hub.html">Projects Hub</a>
+          <a href="login.html">Log In</a>
+          <a href="signup.html">Sign Up</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="project-view-page">
+      <section class="project-view-shell">
+        <p class="project-view-status" id="project-status">Loading project...</p>
+        <article class="project-view-card" id="project-card" hidden>
+          <div class="project-view-media">
+            <img id="project-image" alt="" />
+          </div>
+          <div class="project-view-body">
+            <div class="blueprint-label">— PROJECT FILE —</div>
+            <h2 id="project-title"></h2>
+            <p class="project-view-overview" id="project-overview"></p>
+            <div class="project-view-actions">
+              <textarea class="project-offer-message" id="mentor-offer-message" rows="4" placeholder="Write a short note to the student about how you can help..."></textarea>
+              <button class="btn-primary project-view-btn" id="mentor-offer-btn" type="button">Offer to Mentor</button>
+              <p class="mentor-offer-status" id="mentor-offer-status"></p>
+            </div>
+            <div class="project-view-meta">
+              <span class="card-tag">Student Project</span>
+              <a href="projects-hub.html" class="card-link">Back to Hub</a>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module">
+      import { supabase } from './supabase.js'
+
+      const params = new URLSearchParams(window.location.search)
+      const projectId = params.get('id')
+
+      const statusEl = document.getElementById('project-status')
+      const cardEl = document.getElementById('project-card')
+      const titleEl = document.getElementById('project-title')
+      const overviewEl = document.getElementById('project-overview')
+      const imageEl = document.getElementById('project-image')
+      const mentorOfferBtn = document.getElementById('mentor-offer-btn')
+      const mentorOfferMessageEl = document.getElementById('mentor-offer-message')
+      const mentorOfferStatusEl = document.getElementById('mentor-offer-status')
+      let currentProject = null
+
+      async function loadProject() {
+        if (!projectId) {
+          statusEl.textContent = 'Project not found. No project id was provided.'
+          return
+        }
+
+        const { data: project, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', projectId)
+          .single()
+
+        if (error || !project) {
+          statusEl.textContent = 'Unable to load this project right now.'
+          return
+        }
+
+        currentProject = project
+        titleEl.textContent = project.title || 'Untitled Project'
+        overviewEl.textContent = project.overview || 'No overview was provided for this project yet.'
+        imageEl.src = project.cover_url || ''
+        imageEl.alt = project.title || 'Project cover image'
+
+        statusEl.hidden = true
+        cardEl.hidden = false
+      }
+
+      loadProject()
+
+      mentorOfferBtn.addEventListener('click', async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+          mentorOfferStatusEl.textContent = 'Please log in as a mentor first.'
+          window.location.href = 'login.html'
+          return
+        }
+
+        if (user.user_metadata.role !== 'mentor') {
+          mentorOfferStatusEl.textContent = 'Only mentors can send mentor offers.'
+          return
+        }
+
+        if (!currentProject) {
+          mentorOfferStatusEl.textContent = 'Project details are still loading.'
+          return
+        }
+
+        if (currentProject.student_id === user.id) {
+          mentorOfferStatusEl.textContent = 'You cannot send a mentor request to your own project.'
+          return
+        }
+
+        const { data: mentorProfile, error: mentorProfileError } = await supabase
+          .from('mentor_profiles')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .maybeSingle()
+
+        if (mentorProfileError) {
+          mentorOfferStatusEl.textContent = 'Unable to verify your mentor bio yet.'
+          return
+        }
+
+        if (!mentorProfile) {
+          mentorOfferStatusEl.textContent = 'Please create your mentor bio before sending requests.'
+          window.setTimeout(() => {
+            window.location.href = 'mentor-bio.html'
+          }, 900)
+          return
+        }
+
+        const { data: existingRequest } = await supabase
+          .from('mentor_requests')
+          .select('id')
+          .eq('project_id', currentProject.id)
+          .eq('mentor_id', user.id)
+          .maybeSingle()
+
+        if (existingRequest) {
+          mentorOfferStatusEl.textContent = 'You already sent a mentor offer for this project.'
+          return
+        }
+
+        const { error } = await supabase
+          .from('mentor_requests')
+          .insert({
+            project_id: currentProject.id,
+            student_id: currentProject.student_id,
+            mentor_id: user.id,
+            message: mentorOfferMessageEl.value.trim(),
+            status: 'pending'
+          })
+
+        if (error) {
+          mentorOfferStatusEl.textContent = 'Could not send the mentor offer yet. Make sure the mentor_requests table and policies are created in Supabase.'
+          return
+        }
+
+        mentorOfferStatusEl.textContent = 'Mentor offer sent. The student can now see it on their dashboard.'
+        mentorOfferBtn.disabled = true
+      })
+    </script>
+
+  </body>
+</html>

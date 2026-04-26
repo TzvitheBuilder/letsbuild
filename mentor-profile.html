@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mentor Profile | LetsBuild</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <h1 class="logo">Let's Build</h1>
+        <nav>
+          <a href="index.html">Home</a>
+          <a href="projects-hub.html">Projects Hub</a>
+          <a href="login.html">Log In</a>
+          <a href="signup.html">Sign Up</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mentor-profile-page">
+      <section class="mentor-profile-shell">
+        <p class="project-view-status" id="mentor-profile-status">Loading mentor profile...</p>
+        <article class="mentor-profile-card" id="mentor-profile-card" hidden>
+          <div class="blueprint-label">— MENTOR PROFILE —</div>
+          <h2 id="mentor-profile-name"></h2>
+          <p class="mentor-profile-headline" id="mentor-profile-headline"></p>
+          <div class="mentor-profile-grid">
+            <div class="mentor-profile-panel">
+              <span class="hub-intro-tag">Bio</span>
+              <p id="mentor-profile-bio"></p>
+            </div>
+            <div class="mentor-profile-panel">
+              <span class="hub-intro-tag">Expertise</span>
+              <p id="mentor-profile-expertise"></p>
+            </div>
+            <div class="mentor-profile-panel">
+              <span class="hub-intro-tag">Availability</span>
+              <p id="mentor-profile-availability"></p>
+            </div>
+            <div class="mentor-profile-panel">
+              <span class="hub-intro-tag">Portfolio</span>
+              <p><a id="mentor-profile-portfolio" class="card-link" href="#" target="_blank" rel="noreferrer">Visit Link</a></p>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script type="module">
+      import { supabase } from './supabase.js'
+
+      const params = new URLSearchParams(window.location.search)
+      const mentorId = params.get('id')
+
+      const statusEl = document.getElementById('mentor-profile-status')
+      const cardEl = document.getElementById('mentor-profile-card')
+
+      async function loadMentorProfile() {
+        if (!mentorId) {
+          statusEl.textContent = 'Mentor profile not found.'
+          return
+        }
+
+        const { data, error } = await supabase
+          .from('mentor_profiles')
+          .select('*')
+          .eq('user_id', mentorId)
+          .single()
+
+        if (error || !data) {
+          statusEl.textContent = 'Unable to load this mentor profile right now.'
+          return
+        }
+
+        document.getElementById('mentor-profile-name').textContent = data.full_name || 'Unnamed Mentor'
+        document.getElementById('mentor-profile-headline').textContent = data.headline || ''
+        document.getElementById('mentor-profile-bio').textContent = data.bio || 'No mentor bio provided yet.'
+        document.getElementById('mentor-profile-expertise').textContent = data.expertise || 'No expertise listed yet.'
+        document.getElementById('mentor-profile-availability').textContent = data.availability || 'No availability shared yet.'
+
+        const portfolioEl = document.getElementById('mentor-profile-portfolio')
+        if (data.portfolio_url) {
+          portfolioEl.href = data.portfolio_url
+        } else {
+          portfolioEl.textContent = 'No external link provided'
+          portfolioEl.removeAttribute('href')
+        }
+
+        statusEl.hidden = true
+        cardEl.hidden = false
+      }
+
+      loadMentorProfile()
+    </script>
+  </body>
+</html>
